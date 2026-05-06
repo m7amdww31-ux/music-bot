@@ -8,7 +8,7 @@ from pymongo import MongoClient
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='#', intents=intents)
 
 # اتصال MongoDB
 MONGO_URI = os.environ.get('MONGO_URI')
