@@ -27,6 +27,14 @@ YDL_OPTIONS = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'ytsearch',
+    'extractor_args': {
+        'youtube': {
+            'player_client': ['android', 'web'],
+        }
+    },
+    'http_headers': {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    }
 }
 
 queues = {}
@@ -62,12 +70,19 @@ async def play(ctx, *, query):
     elif ctx.voice_client.channel != ctx.author.voice.channel:
         await ctx.voice_client.move_to(ctx.author.voice.channel)
     async with ctx.typing():
-        with yt_dlp.YoutubeDL(YDL_OPTIONS) as ydl:
-            info = ydl.extract_info(f"ytsearch:{query}", download=False)
-            if 'entries' in info:
-                info = info['entries'][0]
-            url = info['url']
-            title = info['title']
+        try:
+            with yt_dlp.YoutubeDL(YDL_OPTIONS) as ydl:
+                if 'soundcloud.com' in query or 'youtu' in query or 'youtube.com' in query:
+                    info = ydl.extract_info(query, download=False)
+                else:
+                    info = ydl.extract_info(f"ytsearch:{query}", download=False)
+                    if 'entries' in info:
+                        info = info['entries'][0]
+                url = info['url']
+                title = info['title']
+        except Exception as e:
+            return await ctx.send('❌ ما قدرت أشغل هذي الأغنية! جرب أغنية ثانية')
+
     if ctx.voice_client.is_playing():
         get_queue(ctx.guild.id).append((url, title))
         await ctx.send(f'➕ **أضيف للقائمة:** {title}')
@@ -152,13 +167,16 @@ async def play_playlist(ctx, playlist_name: str):
         await ctx.author.voice.channel.connect()
     await ctx.send(f'📋 جاري تحميل قائمة **{playlist_name}** ({len(data["songs"])} أغاني)')
     for song in data['songs']:
-        with yt_dlp.YoutubeDL(YDL_OPTIONS) as ydl:
-            info = ydl.extract_info(f"ytsearch:{song}", download=False)
-            if 'entries' in info:
-                info = info['entries'][0]
-            url = info['url']
-            title = info['title']
-        get_queue(ctx.guild.id).append((url, title))
+        try:
+            with yt_dlp.YoutubeDL(YDL_OPTIONS) as ydl:
+                info = ydl.extract_info(f"ytsearch:{song}", download=False)
+                if 'entries' in info:
+                    info = info['entries'][0]
+                url = info['url']
+                title = info['title']
+            get_queue(ctx.guild.id).append((url, title))
+        except:
+            pass
     if not ctx.voice_client.is_playing():
         await play_next(ctx)
 
