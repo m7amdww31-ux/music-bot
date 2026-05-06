@@ -166,9 +166,12 @@ async def play_playlist(ctx, playlist_name: str):
     for song in data['songs']:
         try:
             with yt_dlp.YoutubeDL(YDL_OPTIONS) as ydl:
-                info = ydl.extract_info(f"ytsearch:{song}", download=False)
-                if 'entries' in info:
-                    info = info['entries'][0]
+                if 'soundcloud.com' in song or 'youtu' in song:
+                    info = ydl.extract_info(song, download=False)
+                else:
+                    info = ydl.extract_info(f"ytsearch:{song}", download=False)
+                    if 'entries' in info:
+                        info = info['entries'][0]
                 url = info['url']
                 title = info['title']
             get_queue(ctx.guild.id).append((url, title))
@@ -211,21 +214,21 @@ async def commands_list(ctx):
 🎵 **أوامر المغني جود:**
 
 **تشغيل:**
-`!شغل [أغنية]` — شغّل أغنية
-`!تخطى` — تخطى
-`!توقف` — إيقاف مؤقت
-`!كمل` — استمر
-`!وقف` — وقف ومسح
-`!مسح` — امسح القائمة بدون وقف
-`!اخرج` — أخرج البوت
-`!قائمة` — قائمة الانتظار
+`#شغل` [رابط ساوند كلاود] — شغّل أغنية
+`#تخطى` — تخطى
+`#توقف` — إيقاف مؤقت
+`#كمل` — استمر
+`#وقف` — وقف ومسح
+`#مسح` — امسح القائمة بدون وقف
+`#اخرج` — أخرج البوت
+`#قائمة` — قائمة الانتظار
 
 **القوائم المحفوظة:**
-`!حفظ [اسم] [أغنية]` — احفظ أغنية
-`!شغل_قائمة [اسم]` — شغّل قائمة
-`!عرض_قائمة [اسم]` — عرض القائمة
-`!قوائمي` — كل قوائمك
-`!حذف_قائمة [اسم]` — احذف قائمة
+`#حفظ` [اسم] [رابط] — احفظ أغنية
+`#شغل_قائمة` [اسم] — شغّل قائمة
+`#عرض_قائمة` [اسم] — عرض القائمة
+`#قوائمي` — كل قوائمك
+`#حذف_قائمة` [اسم] — احذف قائمة
 """
     await ctx.send(msg)
 
