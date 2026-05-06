@@ -1,4 +1,4 @@
 discord.py[voice]
-yt-dlp
+yt-dlp>=2024.11.18
 PyNaCl
 pymongo[srv]
